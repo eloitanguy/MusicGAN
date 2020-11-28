@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from config import RNN_CONFIG
-import torch.functional as F
 
 
 class Generator(nn.Module):
@@ -17,8 +16,10 @@ class Generator(nn.Module):
         # expects x to be of format (batch_size, sequence_length, random_units)
         rnn_out, _ = self.rnn(x)
         # rnn_out: (batch, sequence_length, hidden_dim)
-        x = self.lin(rnn_out)
-        x = self.softmax(x)
+        x = self.lin(rnn_out)  # now (batch, sequence_length, music_size)
+        left = self.softmax(x[:, :, :89])  # left hand
+        right = self.softmax(x[:, :, 89:])  # right hand
+        x = torch.cat((left, right), dim=-1)
         return x  # the output is of shape (batch_size, sequence_length, music_size), with a probability for each note
 
 
