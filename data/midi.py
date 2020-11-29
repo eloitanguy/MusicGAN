@@ -88,7 +88,7 @@ def track2seq(track, to_01=True, code_silence=True):
     return result
 
 
-def mid2arry(mid, min_msg_pct=0.1, to_01=True, no_silence=True, code_silence=True, list_tracks=[0], s=24):
+def mid2arry(mid, min_msg_pct=0.1, to_01=True, no_silence=True, code_silence=True, list_tracks=[0], s=12):
     """
     Handles multiple tracks, but usually we only want one track
     """

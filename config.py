@@ -10,16 +10,16 @@ TRAIN_CONFIG = {
     'batch_size': 128,
     'workers': 6,
     'K': 1,
-    'epochs': 500,
+    'epochs': 100,
     'learning_rate': 1e-1,
     'weight_decay': 1e-4,
-    'experiment_name': 'long_test',
+    'experiment_name': 'short_window',
     'balance': True,
     'feature_matching': False,
     'save_every_n_epochs': 5
 }
 
 DATASET_CONFIG = {
-    'window': 256,
+    'window': 8,
     'len': 2048
 }

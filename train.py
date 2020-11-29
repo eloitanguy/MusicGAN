@@ -6,18 +6,21 @@ from config import TRAIN_CONFIG, RNN_CONFIG, DATASET_CONFIG
 import os
 
 
-class AverageMeter(object):
+class LossMeter(object):
     def __init__(self):
         self.number = 0.
         self.sum = 0.
         self.avg = 0.
-        self.last = 0.
+        self.last_ratio = 0.
+        self.first = 1.
 
-    def update(self, value):
+    def update(self, value, first=False):
         self.number += 1.
         self.sum += value
         self.avg = self.sum / self.number
-        self.last = value
+        if first:
+            self.first = value
+        self.last_ratio = value / self.first
 
     def reset(self):
         self.number, self.sum, self.avg = 0., 0., 0.
@@ -39,7 +42,7 @@ def train_D_batch(batch, G, D, D_optimiser):
 
     loss.backward()
     D_optimiser.step()
-    return loss.item()
+    return loss.item() / 2  # over 2 because D is trained on twice as many examples without proper averaging
 
 
 def train_G_batch_feature_matching(batch, G, D, G_optimiser):
@@ -86,33 +89,34 @@ def train():
                                    weight_decay=TRAIN_CONFIG['weight_decay'])
 
     checkpoint_folder = 'checkpoints/{}/'.format(TRAIN_CONFIG['experiment_name'])
-    D_loss, G_loss = AverageMeter(), AverageMeter()
+    D_loss, G_loss = LossMeter(), LossMeter()
 
     if not os.path.exists(checkpoint_folder):
         os.makedirs(checkpoint_folder)
 
-    for epoch in range(1, TRAIN_CONFIG['epochs']+1):
+    for epoch in range(1, TRAIN_CONFIG['epochs'] + 1):
         D_loss.reset()
         G_loss.reset()
 
         for idx, batch in enumerate(train_loader):
+
             # if D is too good we skip this batch for it
-            freeze_D = D_loss.last < 0.7*G_loss.last and TRAIN_CONFIG['balance']
+            freeze_D = D_loss.last_ratio < 0.7 * G_loss.last_ratio and TRAIN_CONFIG['balance'] and idx != 0
             # if G is too good we skip this batch for it
-            freeze_G = G_loss.last < 0.7*D_loss.last and TRAIN_CONFIG['balance']
+            freeze_G = G_loss.last_ratio < 0.7 * D_loss.last_ratio and TRAIN_CONFIG['balance'] and idx != 0
             x = batch.cuda()
 
             if not freeze_D:
                 D_loss_batch = train_D_batch(x, G, D, D_optimiser)
-                D_loss.update(D_loss_batch)
+                D_loss.update(D_loss_batch, first=idx == 0)
 
             if not freeze_G and idx % TRAIN_CONFIG['K'] == 0:
                 G_loss_batch = G_trainer(x, G, D, G_optimiser)
-                G_loss.update(G_loss_batch)
+                G_loss.update(G_loss_batch, first=idx == 0)
 
         print('[{}/{}]\tD: {}\tG: {}'.format(epoch, TRAIN_CONFIG['epochs'],
-                                             D_loss.avg if D_loss.avg != 0 else D_loss.last,
-                                             G_loss.avg if G_loss.avg != 0 else G_loss.last))
+                                             D_loss.avg if D_loss.avg != 0 else D_loss.last_ratio,
+                                             G_loss.avg if G_loss.avg != 0 else G_loss.last_ratio))
 
         if epoch % TRAIN_CONFIG['save_every_n_epochs'] == 0:
             torch.save({'model': D.state_dict(), 'net_config': RNN_CONFIG, 'train_config': TRAIN_CONFIG},
