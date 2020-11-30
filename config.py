@@ -10,16 +10,19 @@ TRAIN_CONFIG = {
     'batch_size': 128,
     'workers': 6,
     'K': 1,
-    'epochs': 100,
+    'epochs': 50,
     'learning_rate': 1e-1,
     'weight_decay': 1e-4,
-    'experiment_name': 'short_window',
+    'experiment_name': 'w8',
     'balance': True,
-    'feature_matching': False,
-    'save_every_n_epochs': 5
+    'feature_matching': True,
+    'save_every_n_epochs': 5,
+    'load_G': None,  # 'checkpoints/w8/G.pth',
+    'load_D': None  # 'checkpoints/w8/D.pth'
 }
 
 DATASET_CONFIG = {
     'window': 8,
-    'len': 2048
+    'len': 2048,
+    'transpose': True
 }

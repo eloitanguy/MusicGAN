@@ -79,12 +79,23 @@ def train():
     train_loader = DataLoader(train_dataset, batch_size=TRAIN_CONFIG['batch_size'], num_workers=TRAIN_CONFIG['workers'],
                               shuffle=True)
 
-    G = Generator().train().cuda()
+    if TRAIN_CONFIG['load_G']:
+        G_checkpoint = torch.load(TRAIN_CONFIG['load_G'])
+        G = Generator(config=G_checkpoint['net_config'])
+        G.load_state_dict(G_checkpoint['model']).train().cuda()
+    else:
+        G = Generator().train().cuda()
+
+    if TRAIN_CONFIG['load_D']:
+        D_checkpoint = torch.load(TRAIN_CONFIG['load_D'])
+        D = Discriminator(config=D_checkpoint['net_config'])
+        D.load_state_dict(D_checkpoint['model']).train().cuda()
+    else:
+        D = Discriminator().train().cuda()
+
     G_optimiser = torch.optim.Adam(G.parameters(), lr=TRAIN_CONFIG['learning_rate'],
                                    weight_decay=TRAIN_CONFIG['weight_decay'])
     G_trainer = train_D_batch if TRAIN_CONFIG['feature_matching'] else train_G_batch_feature_matching
-
-    D = Discriminator().train().cuda()
     D_optimiser = torch.optim.Adam(D.parameters(), lr=TRAIN_CONFIG['learning_rate'],
                                    weight_decay=TRAIN_CONFIG['weight_decay'])
 

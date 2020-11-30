@@ -4,12 +4,13 @@ from config import RNN_CONFIG
 
 
 class Generator(nn.Module):
-    def __init__(self):
+    def __init__(self, config=None):
         super().__init__()
-        self.rnn = nn.LSTM(input_size=RNN_CONFIG['random_input'], hidden_size=RNN_CONFIG['hidden_size'],
-                           num_layers=RNN_CONFIG['num_layers'], dropout=RNN_CONFIG['dropout'],
+        self.config = config if config else RNN_CONFIG
+        self.rnn = nn.LSTM(input_size=self.config['random_input'], hidden_size=self.config['hidden_size'],
+                           num_layers=self.config['num_layers'], dropout=self.config['dropout'],
                            batch_first=True)
-        self.lin = nn.Linear(in_features=RNN_CONFIG['hidden_size'], out_features=RNN_CONFIG['music_size'])
+        self.lin = nn.Linear(in_features=self.config['hidden_size'], out_features=self.config['music_size'])
         self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, x):
@@ -24,19 +25,18 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self):
+    def __init__(self, config=None):
         super().__init__()
-        self.rnn = nn.LSTM(input_size=RNN_CONFIG['music_size'], hidden_size=RNN_CONFIG['hidden_size'],
-                           num_layers=RNN_CONFIG['num_layers'], dropout=RNN_CONFIG['dropout'],
+        self.config = config if config else RNN_CONFIG
+        self.rnn = nn.LSTM(input_size=self.config['music_size'], hidden_size=self.config['hidden_size'],
+                           num_layers=self.config['num_layers'], dropout=self.config['dropout'],
                            batch_first=True, bidirectional=True)
-        self.lin = nn.Linear(in_features=RNN_CONFIG['hidden_size']*2, out_features=1)
-        self.sigmoid = nn.Sigmoid()
+        self.lin = nn.Linear(in_features=self.config['hidden_size']*2, out_features=1)
 
     def forward(self, x):
         # expects x to be of format (batch_size, sequence_length, music_size) with a one-hot encoding of the notes
         r, _ = self.rnn(x)  # r sequence representation of shape (batch, sequence_length, hidden_dim)
         out = self.lin(r)  # shape (batch, sequence_length, 1)
-        out = self.sigmoid(out)
         out = out.squeeze()  # removing the last dimension
         out = torch.mean(out, dim=-1)  # averaging over time
         return out, r
