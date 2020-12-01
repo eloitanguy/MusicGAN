@@ -13,14 +13,14 @@ TRAIN_CONFIG = {
     'epochs': 100,
     'learning_rate': 3e-2,
     'weight_decay': 0,
-    'experiment_name': 'short_v2',
+    'experiment_name': 'short_v3',
     'balance': True,
     'feature_matching': False,
     'save_every_n_epochs': 5,
     'load_G': None,  # 'checkpoints/w16/G.pth',
     'load_D': None,  # 'checkpoints/w16/D.pth'
     'encourage_variance': True,
-    'var_coeff': 1
+    'var_coeff': 10
 }
 
 DATASET_CONFIG = {

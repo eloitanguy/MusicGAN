@@ -71,7 +71,8 @@ def train_G_batch(batch, G, D, G_optimiser):
 
     if TRAIN_CONFIG['encourage_variance']:
         mse = torch.nn.MSELoss()
-        loss = loss - TRAIN_CONFIG['var_coeff'] * mse(g-torch.mean(g, dim=0))  # encouraging having a high empirical variance
+        # encouraging having a high empirical variance in terms of different notes
+        loss = loss - TRAIN_CONFIG['var_coeff'] * mse(g-torch.mean(g, dim=(0, 1)))
 
     loss.backward()
     G_optimiser.step()
