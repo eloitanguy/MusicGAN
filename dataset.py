@@ -36,7 +36,12 @@ def random_transposition_augmentation(music_track_array):
     """
     add = music_track_array.shape[1] - 88
     nonzero_notes = np.nonzero(music_track_array[:, add:])[1]
-    note_min, note_max = np.min(nonzero_notes), np.max(nonzero_notes)
+
+    try:
+        note_min, note_max = np.min(nonzero_notes), np.max(nonzero_notes)
+    except ValueError:
+        return music_track_array
+
     t = np.random.randint(0, 88 - note_max + note_min)
     res = np.full(music_track_array.shape, 0)
     res[:, (add + t):(add + t + 1 + note_max - note_min)] = \

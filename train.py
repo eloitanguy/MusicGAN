@@ -69,6 +69,10 @@ def train_G_batch(batch, G, D, G_optimiser):
     d, _ = D(g)
     loss = bce(d, torch.ones(batch_size).cuda())  # We want G to fool D
 
+    if TRAIN_CONFIG['encourage_variance']:
+        mse = torch.nn.MSELoss()
+        loss = loss - TRAIN_CONFIG['var_coeff'] * mse(g-torch.mean(g, dim=0))  # encouraging having a high empirical variance
+
     loss.backward()
     G_optimiser.step()
     return loss.item()
