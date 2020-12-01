@@ -203,11 +203,11 @@ def plot_midi(p):
 
 ## Back to MIDI
 
-def arry2mid(arry, tempo=500000, velocity=90, slice=tpb // 8):
+def arry2mid(arry, tempo=500000*2, velocity=90, slice=tpb // 8):
     add = arry.shape[1] - 88
     ary = arry[:, add:]
     # get the difference
-    new_ary = np.concatenate([np.array([[0] * 88]), np.array(ary)], axis=0)
+    new_ary = np.concatenate([np.array([[0] * 88]), np.array(ary), np.array([[0]*88])], axis=0)
     changes = new_ary[1:, :] - new_ary[:-1, :]
     # create a midi file with an empty track
     mid_new = mido.MidiFile(ticks_per_beat=tpb)

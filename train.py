@@ -20,7 +20,7 @@ class LossMeter(object):
         self.avg = self.sum / self.number
         if first:
             self.first = value
-        self.last_ratio = value / self.first
+        self.last_ratio = value / (self.first + 1e-8)
 
     def reset(self):
         self.number, self.sum, self.avg = 0., 0., 0.
@@ -82,14 +82,16 @@ def train():
     if TRAIN_CONFIG['load_G']:
         G_checkpoint = torch.load(TRAIN_CONFIG['load_G'])
         G = Generator(config=G_checkpoint['net_config'])
-        G.load_state_dict(G_checkpoint['model']).train().cuda()
+        G.load_state_dict(G_checkpoint['model'])
+        G = G.train().cuda()
     else:
         G = Generator().train().cuda()
 
     if TRAIN_CONFIG['load_D']:
         D_checkpoint = torch.load(TRAIN_CONFIG['load_D'])
         D = Discriminator(config=D_checkpoint['net_config'])
-        D.load_state_dict(D_checkpoint['model']).train().cuda()
+        D.load_state_dict(D_checkpoint['model'])
+        D = D.train().cuda()
     else:
         D = Discriminator().train().cuda()
 
@@ -125,9 +127,9 @@ def train():
                 G_loss_batch = G_trainer(x, G, D, G_optimiser)
                 G_loss.update(G_loss_batch, first=idx == 0)
 
-        print('[{}/{}]\tD: {}\tG: {}'.format(epoch, TRAIN_CONFIG['epochs'],
-                                             D_loss.avg if D_loss.avg != 0 else D_loss.last_ratio,
-                                             G_loss.avg if G_loss.avg != 0 else G_loss.last_ratio))
+        print('[{}/{}]\tD: {:.5f}\tG: {:.5f}'.format(epoch, TRAIN_CONFIG['epochs'],
+                                                     D_loss.avg if D_loss.avg != 0 else D_loss.last_ratio,
+                                                     G_loss.avg if G_loss.avg != 0 else G_loss.last_ratio))
 
         if epoch % TRAIN_CONFIG['save_every_n_epochs'] == 0:
             torch.save({'model': D.state_dict(), 'net_config': RNN_CONFIG, 'train_config': TRAIN_CONFIG},

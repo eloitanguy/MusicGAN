@@ -10,18 +10,19 @@ class Generator(nn.Module):
         self.rnn = nn.LSTM(input_size=self.config['random_input'], hidden_size=self.config['hidden_size'],
                            num_layers=self.config['num_layers'], dropout=self.config['dropout'],
                            batch_first=True)
-        self.lin = nn.Linear(in_features=self.config['hidden_size'], out_features=self.config['music_size'])
+        self.lin = nn.Linear(in_features=self.config['hidden_size'], out_features=2*self.config['music_size'])
         self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, x):
         # expects x to be of format (batch_size, sequence_length, random_units)
+        x[:, :, ::4] = 4*x[:, :, ::4]
         rnn_out, _ = self.rnn(x)
         # rnn_out: (batch, sequence_length, hidden_dim)
         x = self.lin(rnn_out)  # now (batch, sequence_length, music_size)
         left = self.softmax(x[:, :, :89])  # left hand
         right = self.softmax(x[:, :, 89:])  # right hand
-        x = torch.cat((left, right), dim=-1)
-        return x  # the output is of shape (batch_size, sequence_length, music_size), with a probability for each note
+        # the output is of shape (batch_size, sequence_length, music_size), with a probability for each note
+        return left + right
 
 
 class Discriminator(nn.Module):

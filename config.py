@@ -1,28 +1,28 @@
 RNN_CONFIG = {
-    'num_layers': 2,  # paper value
-    'hidden_size': 350,  # paper value
+    'num_layers': 2,
+    'hidden_size': 128,
     'random_input': 100,
     'dropout': 0,
-    'music_size': 89*2  # left hand + right hand
+    'music_size': 89  # 88 notes + silence
 }
 
 TRAIN_CONFIG = {
     'batch_size': 128,
     'workers': 6,
     'K': 1,
-    'epochs': 50,
-    'learning_rate': 1e-1,
-    'weight_decay': 1e-4,
-    'experiment_name': 'w8',
+    'epochs': 100,
+    'learning_rate': 3e-2,
+    'weight_decay': 0,
+    'experiment_name': 'short_v2',
     'balance': True,
-    'feature_matching': True,
+    'feature_matching': False,
     'save_every_n_epochs': 5,
-    'load_G': None,  # 'checkpoints/w8/G.pth',
-    'load_D': None  # 'checkpoints/w8/D.pth'
+    'load_G': None,  # 'checkpoints/w16/G.pth',
+    'load_D': None,  # 'checkpoints/w16/D.pth'
 }
 
 DATASET_CONFIG = {
-    'window': 8,
+    'window': 16,
     'len': 2048,
     'transpose': True
 }
