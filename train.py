@@ -102,7 +102,7 @@ def train():
 
     G_optimiser = torch.optim.Adam(G.parameters(), lr=TRAIN_CONFIG['learning_rate'],
                                    weight_decay=TRAIN_CONFIG['weight_decay'])
-    G_trainer = train_D_batch if TRAIN_CONFIG['feature_matching'] else train_G_batch_feature_matching
+    G_trainer = train_G_batch_feature_matching if TRAIN_CONFIG['feature_matching'] else train_G_batch
     D_optimiser = torch.optim.Adam(D.parameters(), lr=TRAIN_CONFIG['learning_rate'],
                                    weight_decay=TRAIN_CONFIG['weight_decay'])
 

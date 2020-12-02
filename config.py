@@ -15,7 +15,7 @@ TRAIN_CONFIG = {
     'weight_decay': 0,
     'experiment_name': 'short_v3',
     'balance': True,
-    'feature_matching': False,
+    'feature_matching': True,
     'save_every_n_epochs': 5,
     'load_G': None,  # 'checkpoints/w16/G.pth',
     'load_D': None,  # 'checkpoints/w16/D.pth'
