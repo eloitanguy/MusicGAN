@@ -33,15 +33,22 @@ def train_D_batch(batch, G, D, D_optimiser):
 
     # Train the discriminator on the true example
     d, _ = D(batch)
-    loss = bce(d, torch.ones(batch_size).cuda())  # the dataset examples are all real examples (1)
-
+    # the dataset examples are all real examples (1) or a high score for Wasserstein
+    loss = -(torch.mean(d)).cuda() if TRAIN_CONFIG['wasserstein'] else bce(d, torch.ones(batch_size).cuda())
     # Train the discriminator on generated examples
     g = G(torch.randn(batch_size, DATASET_CONFIG['window'], RNN_CONFIG['random_input']).cuda())
     d, _ = D(g)
-    loss = loss + bce(d, torch.zeros(batch_size).cuda())  # we want D to say that the examples are fake
+    # we want D to say that the examples are fake
+    loss = loss + (torch.mean(d)).cuda() if TRAIN_CONFIG['wasserstein'] \
+        else loss + bce(d, torch.zeros(batch_size).cuda())
 
     loss.backward()
     D_optimiser.step()
+
+    if TRAIN_CONFIG['wasserstein']:   # Clip weights
+        for p in D.parameters():
+            p.data.clamp_(-0.01, 0.01)
+
     return loss.item() / 2  # over 2 because D is trained on twice as many examples without proper averaging
 
 
@@ -67,7 +74,8 @@ def train_G_batch(batch, G, D, G_optimiser):
 
     g = G(torch.randn(batch_size, DATASET_CONFIG['window'], RNN_CONFIG['random_input']).cuda())
     d, _ = D(g)
-    loss = bce(d, torch.ones(batch_size).cuda())  # We want G to fool D
+    # We want G to fool D
+    loss = -(torch.mean(d)).cuda() if TRAIN_CONFIG['wasserstein'] else bce(d, torch.ones(batch_size).cuda())
 
     if TRAIN_CONFIG['encourage_variance']:
         mse = torch.nn.MSELoss()

@@ -1,6 +1,10 @@
 RNN_CONFIG = {
     'num_layers': 2,
-    'hidden_size': 128,
+    'hidden_size': 256,
+    'out_channels': 7,  # 7 octaves ?
+    'kernel_size': 4,
+    'padding': 0,
+    'stride': 1,
     'random_input': 100,
     'dropout': 0.3,
     'music_size': 89  # 88 notes + silence
@@ -13,14 +17,15 @@ TRAIN_CONFIG = {
     'epochs': 100,
     'learning_rate': 3e-2,
     'weight_decay': 0,
-    'experiment_name': 'short_v3',
-    'balance': True,
+    'experiment_name': 'WCR_1',
+    'balance': False,
     'feature_matching': True,
     'save_every_n_epochs': 5,
     'load_G': None,  # 'checkpoints/w16/G.pth',
     'load_D': None,  # 'checkpoints/w16/D.pth'
-    'encourage_variance': True,
-    'var_coeff': 10
+    'encourage_variance': False,
+    'var_coeff': 10,
+    'wasserstein': True
 }
 
 DATASET_CONFIG = {

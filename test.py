@@ -3,6 +3,7 @@ import torch
 from dataset import TouhouDataset
 from config import DATASET_CONFIG, TRAIN_CONFIG
 from data.midi import arry2mid, plot_midi
+import numpy as np
 
 exp_name = TRAIN_CONFIG['experiment_name']
 length = 256
@@ -36,8 +37,10 @@ z[:, :, ::4] = 4*z[:, :, ::4]
 g = G(z)
 
 notes = g.squeeze().clone().detach().numpy()
-notes[notes > 0.5] = 1
-notes[notes != 1] = 0
-mid = arry2mid(notes.astype(int))
+note_t = np.quantile(notes, 87/89)  # tries to have 2 notes on average
+output = notes.copy()
+output[notes >= note_t] = 1
+output[notes < note_t] = 0
+mid = arry2mid(output.astype(int))
 mid.save('g.mid')
-plot_midi(notes)
+plot_midi(output)
