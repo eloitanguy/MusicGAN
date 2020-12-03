@@ -203,7 +203,7 @@ def plot_midi(p):
 
 ## Back to MIDI
 
-def arry2mid(arry, tempo=500000*2, velocity=90, slice=tpb // 8):
+def arry2mid(arry, tempo=500000 * 4, velocity=90, slice=tpb // 8):  # rm tempo*2 -> *4
     add = arry.shape[1] - 88
     ary = arry[:, add:]
     # get the difference

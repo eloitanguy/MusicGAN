@@ -1,7 +1,7 @@
 RNN_CONFIG = {
     'num_layers': 2,
     'hidden_size': 256,
-    'out_channels': 7,  # 7 octaves ?
+    'out_channels': 32,
     'kernel_size': 4,
     'padding': 0,
     'stride': 1,
@@ -17,9 +17,9 @@ TRAIN_CONFIG = {
     'epochs': 100,
     'learning_rate': 3e-2,
     'weight_decay': 0,
-    'experiment_name': 'WCR_1',
+    'experiment_name': 'WCR_7',
     'balance': False,
-    'feature_matching': True,
+    'feature_matching': False,
     'save_every_n_epochs': 5,
     'load_G': None,  # 'checkpoints/w16/G.pth',
     'load_D': None,  # 'checkpoints/w16/D.pth'
@@ -29,7 +29,7 @@ TRAIN_CONFIG = {
 }
 
 DATASET_CONFIG = {
-    'window': 16,
+    'window': 8,
     'len': 2048,
     'transpose': True
 }
