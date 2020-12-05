@@ -17,7 +17,7 @@ TRAIN_CONFIG = {
     'epochs': 100,
     'learning_rate': 3e-2,
     'weight_decay': 0,
-    'experiment_name': 'WCR_7',
+    'experiment_name': 'WCR_8_no_transposition',
     'balance': False,
     'feature_matching': False,
     'save_every_n_epochs': 5,
@@ -31,5 +31,5 @@ TRAIN_CONFIG = {
 DATASET_CONFIG = {
     'window': 8,
     'len': 2048,
-    'transpose': True
+    'transpose': False
 }
