@@ -31,6 +31,9 @@ def train_D_batch(batch, G, D, D_optimiser):
     D_optimiser.zero_grad()
     batch_size = batch.shape[0]  # we expect a batch of [batch_size, sequence_length, input_size]
 
+    if TRAIN_CONFIG['noise_D_real_input']:
+        batch = batch + (torch.randn(batch.shape)/10).cuda()
+
     # Train the discriminator on the true example
     d, _ = D(batch)
     # the dataset examples are all real examples (1) or a high score for Wasserstein
