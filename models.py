@@ -45,14 +45,14 @@ class Discriminator(nn.Module):
         x = x.permute(0, 2, 1)  # reshape to have channel first; shape is (batch_size, music_size, sequence_length)
         x = self.c1d(x)  # shape (batch_size, out_channels, (sequence_length + 2*padding - kernel_size)/stride +1))
         # to shape (batch_size, out_channels,
-        # ((sequence_length + 2*padding - kernel_size)/stride +1) + 2*padding - kernel_size)/stride + 1)):
+        # (h_conv := (sequence_length + 2*padding - kernel_size)/stride +1) + 2*padding - kernel_size)/stride + 1)):
         x = self.maxpool(x)
         x = F.leaky_relu(x, 0.2)
-        # to shape (batch_size, (sequence_length + 2*padding - kernel_size)/stride +1), out_channels)
+        # to shape (batch_size, h_conv, out_channels)
         x = x.permute(0, 2, 1)
-        # r sequence representation (batch, (sequence_length + 2*padding - kernel_size)/stride +1), hidden_dim)
+        # r sequence representation (batch, h_conv, h_rnn)
         r, _ = self.rnn(x)
-        out = self.lin(r)  # shape (batch, (sequence_length + 2*padding - kernel_size)/stride +1), 1)
+        out = self.lin(r)  # shape (batch, h_conv, 1)
         out = out.squeeze()  # removing the last dimension
         out = torch.mean(out, dim=-1)  # averaging over time
         return out, r
